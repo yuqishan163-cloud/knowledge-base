@@ -1,0 +1,21 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local test artifacts
+tmp/
+output/
+
+# Books and extracted source text
+*.epub
+*.mobi
+*.azw3
+extracted/
+manifest.json
+
+# Personal configuration
+.env
+.env.*
+!.env.example
