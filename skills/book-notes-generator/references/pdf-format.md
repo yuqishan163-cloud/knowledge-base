@@ -136,15 +136,15 @@ Inspect metadata and render every page:
 ### 4. Deliver the verified file
 
 - Deliver only the final PDF unless the user requests the Markdown or page previews.
-- Insert the file citation exactly once, as plain response syntax:
+- In Codex desktop, insert one standard Markdown file link using the absolute local path:
 
-```text
-:codex-file-citation{path="/absolute/path/book-notes.pdf" purpose="output"}
+```markdown
+[打开 PDF](/absolute/path/book-notes.pdf)
 ```
 
-- The first character must be `:` in `:codex-file-citation`. Do not add a filename or label before it.
-- Do not wrap the live directive in Markdown, backticks, or a code block. Do not add a separate Markdown link or plain path when file citations are supported.
-- Invalid example: `:book-notes.pdf:codex-file-citation{path="/absolute/path/book-notes.pdf" purpose="output"}`.
+- Use the Markdown link as the primary delivery method. Do not use `:codex-file-citation{...}` in Codex desktop because it may be hidden without producing a persistent attachment.
+- Do not wrap the live link in backticks or a code block. Do not show only a plain path.
+- The link target must be the verified final PDF under the workspace's `output/pdf/`, not a temporary file.
 
 ### Failure handling
 
@@ -152,4 +152,4 @@ Inspect metadata and render every page:
 - Missing Chinese glyphs: supply verified regular and bold Chinese font files and rerender.
 - Missing `pdfinfo` or `pdftoppm`: resolve the bundled Poppler executables; do not skip PDF verification.
 - Output exists only under `tmp/`: render or copy the verified final PDF into `output/pdf/` before delivery.
-- Malformed attachment display: resend the same existing PDF with the exact citation syntax above; regenerating the PDF is unnecessary when file validation passed.
+- Link fails to open: confirm the target still exists, then resend the same existing PDF with the absolute-path Markdown link above. Regenerating the PDF is unnecessary when file validation passed.

@@ -88,8 +88,8 @@ Read `references/pdf-format.md` before creating a PDF.
 4. Run the renderer with absolute paths: `<python> <skill-dir>/scripts/render_notes_pdf.py <source.md> <output.pdf>`. Pass `--regular-font` and `--bold-font` only when a specific font has been selected or the defaults lack Chinese glyphs.
 5. Require a successful renderer exit, then confirm the final PDF exists and is non-empty. Do not treat the Markdown source or a temporary PDF as the deliverable.
 6. Inspect metadata and page count with `pdfinfo`, render every page to PNG with `pdftoppm`, and visually inspect every rendered page. Fix clipped text, broken glyphs, poor page breaks, weak hierarchy, or inconsistent numbering, then rerun the checks.
-7. Deliver only the verified PDF. Insert this plain file citation exactly once in the final response: `:codex-file-citation{path="/absolute/path/book-notes.pdf" purpose="output"}`.
-8. The directive must start directly with `:codex-file-citation`. Never prefix it with a filename or label, wrap it in Markdown or backticks, use malformed syntax such as `:book-notes.pdf:codex-file-citation{...}`, or add a separate Markdown link when file citations are supported.
+7. Deliver only the verified PDF with a standard Markdown file link whose target is the absolute local path: `[打开 PDF](/absolute/path/book-notes.pdf)`.
+8. In Codex desktop, use the Markdown link as the primary delivery method. Do not use `:codex-file-citation{...}` there: the directive may be hidden without producing a persistent attachment. Do not wrap the link in backticks or show only a plain path.
 
 ## Quality gate
 
