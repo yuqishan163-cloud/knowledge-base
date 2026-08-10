@@ -5,7 +5,7 @@
 1. Source Markdown
 2. Numbering
 3. Section order
-4. Rendering and verification
+4. Execution checklist
 
 ## Source Markdown
 
@@ -77,18 +77,79 @@ Do not reproduce Notion toggles or enhanced Markdown tags in PDF source.
 
 The outline must appear before the summary and detailed body.
 
-## Rendering and verification
+## Execution checklist
 
-1. Run `scripts/render_notes_pdf.py source.md output.pdf` with Python 3.10+.
-2. If the default Python lacks ReportLab, load the workspace's bundled dependencies and use its Python executable, or install `reportlab>=4.0,<5` in an isolated environment.
-3. Use a Chinese font with both regular and bold faces. The renderer searches common macOS and Linux font locations; pass `--regular-font` and `--bold-font` if needed. Avoid emoji in PDF headings unless the selected font is confirmed to support them.
-4. Inspect PDF metadata and page count with `pdfinfo`.
-5. Render all pages with `pdftoppm -png`.
-6. Inspect the first page, every section transition, pages containing long lists or formulas, and the final page. For a short document, inspect every page.
-7. Correct broken glyphs, orphan headings, clipped text, overlapping elements, inconsistent numbering, weak bold emphasis, and excess blank space.
-8. Default to a comfortable reading size: 11.5 pt body text with approximately 20 pt leading; scale headings proportionally.
-9. Use an ASCII-compatible final filename such as `financial-freedom-book-notes.pdf`. Keep the original-language title inside the document.
-10. Save the final file under the active workspace's `output/pdf/` unless the user explicitly requests another visible destination. Never save the only copy under a temporary directory or the Skill installation directory.
-11. Confirm the file exists, is non-empty, and opens with `pdfinfo`.
-12. Deliver a standard clickable Markdown link using its absolute path. If the environment also requires a file citation, include it, but never make it the only way to access the PDF.
-13. Deliver only the final PDF, not intermediate Markdown or PNGs, unless requested.
+Complete every step. A successful render alone is not completion.
+
+### 1. Prepare paths and dependencies
+
+- Resolve the active workspace, the absolute Skill directory, and a Python 3.10+ executable. When available, load the workspace's bundled dependency paths and use its Python, `pdfinfo`, and `pdftoppm` executables.
+- Confirm ReportLab before rendering:
+
+```bash
+"<python>" -c "import reportlab"
+```
+
+- If the import fails, use the bundled Python. If no bundled runtime is available, install `reportlab>=4.0,<5` in an isolated environment and test the import again.
+- Create these workspace paths:
+  - Source: `<workspace>/tmp/pdfs/<ascii-name>.md`
+  - Final PDF: `<workspace>/output/pdf/<ascii-name>.pdf`
+  - Page previews: `<workspace>/tmp/pdfs/<ascii-name>-page`
+- Keep the original-language book title inside the document. Use an ASCII-compatible filename such as `financial-freedom-book-notes.pdf`.
+
+### 2. Render the final PDF
+
+Run the bundled renderer with absolute paths:
+
+```bash
+"<python>" "<skill-dir>/scripts/render_notes_pdf.py" \
+  "<workspace>/tmp/pdfs/<ascii-name>.md" \
+  "<workspace>/output/pdf/<ascii-name>.pdf"
+```
+
+The renderer searches common macOS and Linux Chinese fonts. When the user chooses a font, or the defaults lack Chinese glyphs, add both `--regular-font <absolute-path>` and `--bold-font <absolute-path>`. Avoid emoji unless the selected font supports them.
+
+Require exit status 0 and a non-empty final file:
+
+```bash
+test -s "<workspace>/output/pdf/<ascii-name>.pdf"
+```
+
+Never keep the only deliverable in a temporary directory or the Skill installation directory.
+
+### 3. Verify structure and appearance
+
+Inspect metadata and render every page:
+
+```bash
+"<pdfinfo>" "<workspace>/output/pdf/<ascii-name>.pdf"
+"<pdftoppm>" -png -r 150 \
+  "<workspace>/output/pdf/<ascii-name>.pdf" \
+  "<workspace>/tmp/pdfs/<ascii-name>-page"
+```
+
+- Confirm the PDF opens, is not encrypted, and has the expected page count and page size.
+- Visually inspect every generated PNG. For long documents, inspect at minimum every page once at normal detail, then inspect pages with dense lists, formulas, or section transitions more closely.
+- Correct broken glyphs, orphan headings, clipped or overlapping text, inconsistent numbering, weak bold emphasis, and excess blank space. Render and verify again after every correction.
+- Default to a comfortable reading size: 11.5 pt body text with approximately 20 pt leading; scale headings proportionally.
+
+### 4. Deliver the verified file
+
+- Deliver only the final PDF unless the user requests the Markdown or page previews.
+- Insert the file citation exactly once, as plain response syntax:
+
+```text
+:codex-file-citation{path="/absolute/path/book-notes.pdf" purpose="output"}
+```
+
+- The first character must be `:` in `:codex-file-citation`. Do not add a filename or label before it.
+- Do not wrap the live directive in Markdown, backticks, or a code block. Do not add a separate Markdown link or plain path when file citations are supported.
+- Invalid example: `:book-notes.pdf:codex-file-citation{path="/absolute/path/book-notes.pdf" purpose="output"}`.
+
+### Failure handling
+
+- ReportLab import failure: switch to the bundled Python or install ReportLab in an isolated environment, then retry.
+- Missing Chinese glyphs: supply verified regular and bold Chinese font files and rerender.
+- Missing `pdfinfo` or `pdftoppm`: resolve the bundled Poppler executables; do not skip PDF verification.
+- Output exists only under `tmp/`: render or copy the verified final PDF into `output/pdf/` before delivery.
+- Malformed attachment display: resend the same existing PDF with the exact citation syntax above; regenerating the PDF is unnecessary when file validation passed.

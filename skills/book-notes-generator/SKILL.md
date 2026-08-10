@@ -82,13 +82,14 @@ Read `references/notion-format.md` before any Notion write.
 
 Read `references/pdf-format.md` before creating a PDF.
 
-- Convert the final note to the required Markdown hierarchy, then run `scripts/render_notes_pdf.py <note.md> <note.pdf>`.
-- Use the PDF workflow's bundled dependencies when available.
-- Render every PDF page to PNG and inspect it. Fix clipped text, broken Chinese glyphs, bad page breaks, weak hierarchy, or inconsistent numbering before delivery.
-- Keep the Notion-oriented callout labels as normal PDF sections; do not simulate toggles in a static document.
-- Save the final file in a user-visible workspace `output/pdf/` directory with an ASCII-compatible filename. Keep the Chinese book title inside the PDF.
-- Verify the final file exists, is non-empty, opens successfully, and has the expected page count.
-- Return a standard clickable Markdown link using the absolute local path, for example `[打开 PDF](/absolute/path/book-notes.pdf)`. Do not rely only on a file-citation component because some clients may not render it.
+1. Create the final PDF-source Markdown under the active workspace's `tmp/pdfs/`. Use the hierarchy in `references/pdf-format.md`; represent Notion callouts as ordinary sections and do not simulate toggles.
+2. Resolve an absolute path for the Skill directory and for a Python 3.10+ executable. Prefer the workspace's bundled dependency runtime when available, and confirm that the selected Python can import ReportLab.
+3. Choose an ASCII-compatible final filename under the active workspace's `output/pdf/`. Keep the original-language book title inside the PDF.
+4. Run the renderer with absolute paths: `<python> <skill-dir>/scripts/render_notes_pdf.py <source.md> <output.pdf>`. Pass `--regular-font` and `--bold-font` only when a specific font has been selected or the defaults lack Chinese glyphs.
+5. Require a successful renderer exit, then confirm the final PDF exists and is non-empty. Do not treat the Markdown source or a temporary PDF as the deliverable.
+6. Inspect metadata and page count with `pdfinfo`, render every page to PNG with `pdftoppm`, and visually inspect every rendered page. Fix clipped text, broken glyphs, poor page breaks, weak hierarchy, or inconsistent numbering, then rerun the checks.
+7. Deliver only the verified PDF. Insert this plain file citation exactly once in the final response: `:codex-file-citation{path="/absolute/path/book-notes.pdf" purpose="output"}`.
+8. The directive must start directly with `:codex-file-citation`. Never prefix it with a filename or label, wrap it in Markdown or backticks, use malformed syntax such as `:book-notes.pdf:codex-file-citation{...}`, or add a separate Markdown link when file citations are supported.
 
 ## Quality gate
 
