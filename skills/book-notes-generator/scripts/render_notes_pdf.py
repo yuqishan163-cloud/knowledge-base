@@ -62,10 +62,11 @@ def styles() -> dict[str, ParagraphStyle]:
     return {
         "title": ParagraphStyle("BookTitle", parent=base["Title"], fontName="BookBold", fontSize=28, leading=39, alignment=TA_CENTER, textColor=ink, spaceAfter=15 * mm),
         "h2": ParagraphStyle("H2", parent=base["Heading2"], fontName="BookBold", fontSize=22, leading=31, textColor=ink, spaceBefore=7 * mm, spaceAfter=3 * mm, keepWithNext=True),
-        "h3": ParagraphStyle("H3", parent=base["Heading3"], fontName="BookBold", fontSize=18, leading=27, textColor=ink, spaceBefore=5 * mm, spaceAfter=2 * mm, keepWithNext=True),
+        "h3": ParagraphStyle("H3", parent=base["Heading3"], fontName="BookRegular", fontSize=18, leading=27, textColor=ink, backColor=colors.HexColor("#FFF2A8"), borderPadding=2 * mm, spaceBefore=5 * mm, spaceAfter=2 * mm, keepWithNext=True),
         "h4": ParagraphStyle("H4", parent=base["Heading4"], fontName="BookRegular", fontSize=18, leading=27, textColor=ink, leftIndent=4 * mm, spaceBefore=4 * mm, spaceAfter=1.5 * mm, keepWithNext=True),
         "h5": ParagraphStyle("H5", parent=base["Heading5"], fontName="BookRegular", fontSize=18, leading=27, textColor=ink, leftIndent=8 * mm, spaceBefore=3 * mm, spaceAfter=1 * mm, keepWithNext=True),
         "body": ParagraphStyle("Body", parent=base["BodyText"], fontName="BookRegular", fontSize=11.5, leading=20, textColor=ink, spaceAfter=2.5 * mm, wordWrap="CJK"),
+        "level3_body": ParagraphStyle("Level3Body", parent=base["BodyText"], fontName="BookRegular", fontSize=18, leading=27, textColor=ink, leftIndent=4 * mm, spaceAfter=2.5 * mm, wordWrap="CJK"),
         "quote": ParagraphStyle("Quote", parent=base["BodyText"], fontName="BookRegular", fontSize=11.5, leading=20, leftIndent=7 * mm, rightIndent=5 * mm, borderColor=ink, borderWidth=1.5, borderPadding=(1 * mm, 0, 1 * mm, 4 * mm), textColor=ink, spaceAfter=3 * mm, wordWrap="CJK"),
         "list": ParagraphStyle("List", parent=base["BodyText"], fontName="BookRegular", fontSize=11.5, leading=20, leftIndent=2 * mm, textColor=ink, wordWrap="CJK"),
     }
@@ -82,6 +83,7 @@ def footer(canvas, doc) -> None:
 def parse_markdown(text: str, style: dict[str, ParagraphStyle]):
     story = []
     list_items: list[tuple[str, str]] = []
+    current_heading_level = 0
 
     def flush_list() -> None:
         nonlocal list_items
@@ -105,6 +107,7 @@ def parse_markdown(text: str, style: dict[str, ParagraphStyle]):
         if match:
             flush_list()
             level = len(match.group(1))
+            current_heading_level = level
             key = "title" if level == 1 else f"h{level}"
             if level > 1:
                 minimum_space = {2: 38, 3: 30, 4: 24, 5: 20}[level]
@@ -127,7 +130,8 @@ def parse_markdown(text: str, style: dict[str, ParagraphStyle]):
             story.append(Spacer(1, 4 * mm))
         else:
             flush_list()
-            story.append(Paragraph(inline_markup(line), style["body"]))
+            body_style = style["level3_body"] if current_heading_level == 4 else style["body"]
+            story.append(Paragraph(inline_markup(line), body_style))
     flush_list()
     return story
 
