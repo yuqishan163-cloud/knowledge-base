@@ -26,15 +26,15 @@ Create one final Markdown file as the PDF source. Use this structure:
 - 第二句
 - 第三句
 
-## 1 第一主题
+## 1. 第一主题
 
-### ◆ **核心洞察**
+### • **核心洞察**
 
-#### • 解释标题
+#### - 解释标题
 
 普通说明文字。**最高价值的信息加粗。**
 
-##### → 行动示例
+##### ✓ 行动示例
 
 具体步骤、公式、清单或例子。
 
@@ -57,10 +57,13 @@ Do not reproduce Notion toggles or enhanced Markdown tags in PDF source.
 
 ## Hierarchy markers
 
-- Number only Level 1 themes: `1`, `2`, `3`.
-- Mark Level 2 insights with `◆`.
-- Mark Level 3 explanations with `•`.
-- Mark optional Level 4 action examples with `→`.
+- Number only Level 1 themes: `1.`, `2.`, `3.`. Always include the period.
+- Make Level 1 larger than the deeper layers.
+- Mark Level 2 insights with `•` and render the complete line in bold.
+- Mark Level 3 explanations with `-`.
+- Mark optional Level 4 action examples with `✓`.
+- Use the same font size for Levels 2, 3, and 4. Use the previous Level 1 size of 18 pt by default.
+- Render all text in black, including headings, body text, quotes, and page numbers.
 - Keep each marker stable throughout the document; do not mix numbered and symbolic styles below Level 1.
 - Keep the outline wording identical to Level 1 body headings.
 - Do not add labels such as `主题：` or `观点：`.

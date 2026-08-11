@@ -63,7 +63,7 @@ Keep Personal Application separate from the nested knowledge map. Put its strong
 ## Choose the output structure
 
 - Notion: use nested toggles so Level 1 expands to Level 2, then Level 3, with optional Level 4 action examples.
-- PDF: place a compact outline before the body; number only Level 1 themes (`1`, `2`, `3`), then mark deeper layers with widely supported symbols: `◆` for Level 2, `•` for Level 3, and `→` for optional Level 4 action examples. Retain selective bold emphasis.
+- PDF: place a compact outline before the body; number only Level 1 themes (`1.`, `2.`, `3.`), then mark deeper layers with `•` for bold Level 2 insights, `-` for Level 3 explanations, and `✓` for optional Level 4 action examples. Use black text throughout.
 - Both: synthesize once, then render the same knowledge structure into both formats. Do not independently rewrite the ideas.
 
 ## Write to Notion

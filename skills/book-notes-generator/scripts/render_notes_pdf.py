@@ -58,17 +58,15 @@ def inline_markup(value: str) -> str:
 
 def styles() -> dict[str, ParagraphStyle]:
     base = getSampleStyleSheet()
-    ink = colors.HexColor("#222222")
-    muted = colors.HexColor("#5F6368")
-    accent = colors.HexColor("#315B7D")
+    ink = colors.black
     return {
         "title": ParagraphStyle("BookTitle", parent=base["Title"], fontName="BookBold", fontSize=28, leading=39, alignment=TA_CENTER, textColor=ink, spaceAfter=15 * mm),
-        "h2": ParagraphStyle("H2", parent=base["Heading2"], fontName="BookBold", fontSize=18, leading=26, textColor=accent, spaceBefore=7 * mm, spaceAfter=3 * mm, keepWithNext=True),
-        "h3": ParagraphStyle("H3", parent=base["Heading3"], fontName="BookBold", fontSize=14.5, leading=22, textColor=ink, spaceBefore=5 * mm, spaceAfter=2 * mm, keepWithNext=True),
-        "h4": ParagraphStyle("H4", parent=base["Heading4"], fontName="BookBold", fontSize=12.5, leading=20, textColor=ink, leftIndent=4 * mm, spaceBefore=4 * mm, spaceAfter=1.5 * mm, keepWithNext=True),
-        "h5": ParagraphStyle("H5", parent=base["Heading5"], fontName="BookBold", fontSize=11.5, leading=19, textColor=muted, leftIndent=8 * mm, spaceBefore=3 * mm, spaceAfter=1 * mm, keepWithNext=True),
+        "h2": ParagraphStyle("H2", parent=base["Heading2"], fontName="BookBold", fontSize=22, leading=31, textColor=ink, spaceBefore=7 * mm, spaceAfter=3 * mm, keepWithNext=True),
+        "h3": ParagraphStyle("H3", parent=base["Heading3"], fontName="BookBold", fontSize=18, leading=27, textColor=ink, spaceBefore=5 * mm, spaceAfter=2 * mm, keepWithNext=True),
+        "h4": ParagraphStyle("H4", parent=base["Heading4"], fontName="BookRegular", fontSize=18, leading=27, textColor=ink, leftIndent=4 * mm, spaceBefore=4 * mm, spaceAfter=1.5 * mm, keepWithNext=True),
+        "h5": ParagraphStyle("H5", parent=base["Heading5"], fontName="BookRegular", fontSize=18, leading=27, textColor=ink, leftIndent=8 * mm, spaceBefore=3 * mm, spaceAfter=1 * mm, keepWithNext=True),
         "body": ParagraphStyle("Body", parent=base["BodyText"], fontName="BookRegular", fontSize=11.5, leading=20, textColor=ink, spaceAfter=2.5 * mm, wordWrap="CJK"),
-        "quote": ParagraphStyle("Quote", parent=base["BodyText"], fontName="BookRegular", fontSize=11.5, leading=20, leftIndent=7 * mm, rightIndent=5 * mm, borderColor=colors.HexColor("#A7BBCB"), borderWidth=1.5, borderPadding=(1 * mm, 0, 1 * mm, 4 * mm), textColor=muted, spaceAfter=3 * mm, wordWrap="CJK"),
+        "quote": ParagraphStyle("Quote", parent=base["BodyText"], fontName="BookRegular", fontSize=11.5, leading=20, leftIndent=7 * mm, rightIndent=5 * mm, borderColor=ink, borderWidth=1.5, borderPadding=(1 * mm, 0, 1 * mm, 4 * mm), textColor=ink, spaceAfter=3 * mm, wordWrap="CJK"),
         "list": ParagraphStyle("List", parent=base["BodyText"], fontName="BookRegular", fontSize=11.5, leading=20, leftIndent=2 * mm, textColor=ink, wordWrap="CJK"),
     }
 
@@ -76,7 +74,7 @@ def styles() -> dict[str, ParagraphStyle]:
 def footer(canvas, doc) -> None:
     canvas.saveState()
     canvas.setFont("BookRegular", 9)
-    canvas.setFillColor(colors.HexColor("#888888"))
+    canvas.setFillColor(colors.black)
     canvas.drawCentredString(A4[0] / 2, 12 * mm, str(doc.page))
     canvas.restoreState()
 
