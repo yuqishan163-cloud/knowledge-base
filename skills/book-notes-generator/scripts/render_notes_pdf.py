@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Render hierarchical Chinese Markdown book notes as a polished PDF."""
-
+"""Render an approved four-layer Markdown book note without rewriting its content."""
 from __future__ import annotations
 
 import argparse
@@ -9,155 +8,239 @@ import re
 from pathlib import Path
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import CondPageBreak, ListFlowable, ListItem, Paragraph, SimpleDocTemplate, Spacer
+from reportlab.platypus import BaseDocTemplate, CondPageBreak, Frame, PageTemplate, Paragraph, Spacer
 
 
 REGULAR_CANDIDATES = [
-    "/System/Library/Fonts/STHeiti Light.ttc",
-    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
-    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
-    "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttf",
+    ('/System/Library/Fonts/Supplemental/Songti.ttc', 6),
+    ('/System/Library/Fonts/STHeiti Light.ttc', 1),
+    ('/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttf', 0),
+    ('/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc', 0),
+    ('/System/Library/Fonts/Supplemental/Arial Unicode.ttf', 0),
 ]
-
 BOLD_CANDIDATES = [
-    "/System/Library/Fonts/STHeiti Medium.ttc",
-    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
-    "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
-    "/usr/share/fonts/truetype/noto/NotoSansCJK-Bold.ttf",
+    ('/System/Library/Fonts/STHeiti Medium.ttc', 1),
+    ('/usr/share/fonts/truetype/noto/NotoSansCJK-Bold.ttf', 0),
+    ('/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc', 0),
+    ('/System/Library/Fonts/Supplemental/Songti.ttc', 1),
 ]
+SANS_CANDIDATES = [('/System/Library/Fonts/STHeiti Light.ttc', 1)]
 
 
-def find_font(explicit: str | None, candidates: list[str]) -> str:
-    if explicit:
-        path = Path(explicit)
-        if not path.is_file():
-            raise FileNotFoundError(path)
-        return str(path)
-    for candidate in candidates:
-        if Path(candidate).is_file():
-            return candidate
-    raise FileNotFoundError("No Chinese font found; pass --regular-font and --bold-font")
+def register_one(name, explicit, index, candidates):
+    choices = [(str(explicit), index)] if explicit else candidates
+    errors = []
+    for path, face in choices:
+        if not Path(path).is_file():
+            errors.append(f'{path}: missing')
+            continue
+        try:
+            pdfmetrics.registerFont(TTFont(name, path, subfontIndex=face))
+            return path, face
+        except Exception as exc:
+            errors.append(f'{path} face {face}: {exc}')
+    raise RuntimeError(f'No usable Chinese font for {name}; supply an explicit font. ' + '; '.join(errors))
 
 
-def inline_markup(value: str) -> str:
-    pieces = re.split(r"(\*\*.+?\*\*)", value)
-    rendered = []
-    for piece in pieces:
-        if piece.startswith("**") and piece.endswith("**"):
-            rendered.append(f"<b>{html.escape(piece[2:-2])}</b>")
-        else:
-            rendered.append(html.escape(piece))
-    return "".join(rendered)
+def register_fonts(regular=None, bold=None, regular_index=0, bold_index=0):
+    normal = register_one('BookRegular', regular, regular_index, REGULAR_CANDIDATES)
+    strong = register_one('BookBold', bold, bold_index, BOLD_CANDIDATES)
+    register_one('BookSans', None, 0, SANS_CANDIDATES + [normal])
+    pdfmetrics.registerFontFamily('BookRegular', normal='BookRegular', bold='BookBold')
+    pdfmetrics.registerFontFamily('BookBold', normal='BookBold', bold='BookBold')
+    pdfmetrics.registerFontFamily('BookSans', normal='BookSans', bold='BookBold')
+    return normal, strong
 
 
-def styles() -> dict[str, ParagraphStyle]:
-    base = getSampleStyleSheet()
-    ink = colors.black
+def inline_markup(value):
+    """Escape book text before applying the small supported inline syntax."""
+    parts = re.split(r'(\*\*.+?\*\*)', value)
+    return ''.join('<b>' + html.escape(p[2:-2]) + '</b>'
+                   if p.startswith('**') and p.endswith('**') else html.escape(p)
+                   for p in parts)
+
+
+def styles():
+    common = dict(textColor=colors.black, wordWrap='CJK', splitLongWords=True,
+                  allowWidows=0, allowOrphans=0)
     return {
-        "title": ParagraphStyle("BookTitle", parent=base["Title"], fontName="BookBold", fontSize=28, leading=39, alignment=TA_CENTER, textColor=ink, spaceAfter=15 * mm),
-        "h2": ParagraphStyle("H2", parent=base["Heading2"], fontName="BookBold", fontSize=22, leading=31, textColor=ink, spaceBefore=7 * mm, spaceAfter=3 * mm, keepWithNext=True),
-        "h3": ParagraphStyle("H3", parent=base["Heading3"], fontName="BookRegular", fontSize=18, leading=27, textColor=ink, backColor=colors.HexColor("#FFF2A8"), borderPadding=2 * mm, spaceBefore=5 * mm, spaceAfter=2 * mm, keepWithNext=True),
-        "h4": ParagraphStyle("H4", parent=base["Heading4"], fontName="BookRegular", fontSize=18, leading=27, textColor=ink, leftIndent=4 * mm, spaceBefore=4 * mm, spaceAfter=1.5 * mm, keepWithNext=True),
-        "h5": ParagraphStyle("H5", parent=base["Heading5"], fontName="BookRegular", fontSize=18, leading=27, textColor=ink, leftIndent=8 * mm, spaceBefore=3 * mm, spaceAfter=1 * mm, keepWithNext=True),
-        "body": ParagraphStyle("Body", parent=base["BodyText"], fontName="BookRegular", fontSize=11.5, leading=20, textColor=ink, spaceAfter=2.5 * mm, wordWrap="CJK"),
-        "level3_body": ParagraphStyle("Level3Body", parent=base["BodyText"], fontName="BookRegular", fontSize=18, leading=27, textColor=ink, leftIndent=4 * mm, spaceAfter=2.5 * mm, wordWrap="CJK"),
-        "quote": ParagraphStyle("Quote", parent=base["BodyText"], fontName="BookRegular", fontSize=11.5, leading=20, leftIndent=7 * mm, rightIndent=5 * mm, borderColor=ink, borderWidth=1.5, borderPadding=(1 * mm, 0, 1 * mm, 4 * mm), textColor=ink, spaceAfter=3 * mm, wordWrap="CJK"),
-        "list": ParagraphStyle("List", parent=base["BodyText"], fontName="BookRegular", fontSize=11.5, leading=20, leftIndent=2 * mm, textColor=ink, wordWrap="CJK"),
+        'title': ParagraphStyle('Title', fontName='BookBold', fontSize=25, leading=34,
+                                spaceAfter=10, keepWithNext=True, **common),
+        'meta': ParagraphStyle('Metadata', fontName='BookSans', fontSize=9.3, leading=15,
+                               spaceAfter=10, keepWithNext=True, **common),
+        'note': ParagraphStyle('SourceNote', fontName='BookRegular', fontSize=9.5, leading=15.5,
+                               spaceAfter=12, **common),
+        'theme': ParagraphStyle('Theme', fontName='BookBold', fontSize=17.5, leading=25,
+                                spaceBefore=18, spaceAfter=9, keepWithNext=True, **common),
+        'core': ParagraphStyle('Core', fontName='BookBold', fontSize=12, leading=20,
+                               spaceBefore=10, spaceAfter=6, keepWithNext=True, **common),
+        'body': ParagraphStyle('Body', fontName='BookRegular', fontSize=11.5, leading=19,
+                               spaceAfter=7, **common),
+        'quote': ParagraphStyle('Detail', fontName='BookRegular', fontSize=10.5, leading=17.5,
+                                leftIndent=18, rightIndent=6, spaceBefore=1, spaceAfter=12,
+                                **common),
     }
 
 
-def footer(canvas, doc) -> None:
-    canvas.saveState()
-    canvas.setFont("BookRegular", 9)
-    canvas.setFillColor(colors.black)
-    canvas.drawCentredString(A4[0] / 2, 12 * mm, str(doc.page))
-    canvas.restoreState()
+class DetailParagraph(Paragraph):
+    """Left rule survives Paragraph splitting across pages."""
+    def draw(self):
+        self.canv.saveState()
+        self.canv.setStrokeColor(colors.HexColor('#A8ADB3'))
+        self.canv.setLineWidth(1.25)
+        self.canv.line(4, 1, 4, self.height - 1)
+        self.canv.restoreState()
+        super().draw()
 
 
-def parse_markdown(text: str, style: dict[str, ParagraphStyle]):
-    story = []
-    list_items: list[tuple[str, str]] = []
-    current_heading_level = 0
-
-    def flush_list() -> None:
-        nonlocal list_items
-        if not list_items:
-            return
-        ordered = all(kind == "ordered" for kind, _ in list_items)
-        items = [ListItem(Paragraph(inline_markup(value), style["list"]), leftIndent=4 * mm) for _, value in list_items]
-        options = {"bulletType": "1" if ordered else "bullet", "leftIndent": 8 * mm, "bulletFontName": "BookRegular", "bulletFontSize": 10}
-        if ordered:
-            options["start"] = "1"
-        story.append(ListFlowable(items, **options))
-        story.append(Spacer(1, 2 * mm))
-        list_items = []
-
-    for raw in text.splitlines():
-        line = raw.strip()
+def markdown_blocks(text):
+    """Group ordinary wrapped lines and complete multiline blockquotes."""
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
         if not line:
-            flush_list()
+            i += 1
             continue
-        match = re.match(r"^(#{1,5})\s+(.+)$", line)
-        if match:
-            flush_list()
-            level = len(match.group(1))
-            current_heading_level = level
-            key = "title" if level == 1 else f"h{level}"
-            if level > 1:
-                minimum_space = {2: 38, 3: 30, 4: 24, 5: 20}[level]
-                story.append(CondPageBreak(minimum_space * mm))
-            story.append(Paragraph(inline_markup(match.group(2)), style[key]))
-            if level == 1:
-                story.append(Spacer(1, 3 * mm))
+        if line.startswith('>'):
+            quote = []
+            while i < len(lines) and lines[i].lstrip().startswith('>'):
+                quote.append(re.sub(r'^\s*> ?', '', lines[i]))
+                i += 1
+            yield 'quote', '\n'.join(quote)
             continue
-        ordered = re.match(r"^\d+[.)]\s+(.+)$", line)
-        bullet = re.match(r"^[-*]\s+(?:\[[ xX]\]\s*)?(.+)$", line)
-        if ordered:
-            list_items.append(("ordered", ordered.group(1)))
-        elif bullet:
-            list_items.append(("bullet", bullet.group(1)))
-        elif line.startswith(">"):
-            flush_list()
-            story.append(Paragraph(inline_markup(line[1:].strip()), style["quote"]))
-        elif line == "---":
-            flush_list()
+        heading = re.match(r'^(#{1,5})\s+(.+)$', line)
+        if heading:
+            level = len(heading.group(1))
+            # Existing legacy Markdown remains readable, without its old yellow blocks.
+            kind = {1:'title', 2:'theme', 3:'core', 4:'body', 5:'quote'}[level]
+            yield kind, heading.group(2)
+            i += 1
+            continue
+        if re.fullmatch(r'\*\*[^*]+\*\*', line):
+            yield 'core', line[2:-2]
+            i += 1
+            continue
+        if line == '---':
+            yield 'space', ''
+            i += 1
+            continue
+        paragraph = [line]
+        i += 1
+        while i < len(lines) and lines[i].strip():
+            next_line = lines[i].strip()
+            if (next_line.startswith(('>', '#')) or next_line == '---'
+                    or re.fullmatch(r'\*\*[^*]+\*\*', next_line)):
+                break
+            paragraph.append(next_line)
+            i += 1
+        yield 'body', '\n'.join(paragraph)
+
+
+def quote_markup(value):
+    # Preserve line breaks, including blank quote lines and numbered action steps.
+    return '<br/>'.join(inline_markup(line) for line in value.split('\n'))
+
+
+def parse_markdown(text, style):
+    story = []
+    in_prelude = True
+    after_title = False
+    for kind, value in markdown_blocks(text):
+        if kind == 'space':
             story.append(Spacer(1, 4 * mm))
-        else:
-            flush_list()
-            body_style = style["level3_body"] if current_heading_level == 4 else style["body"]
-            story.append(Paragraph(inline_markup(line), body_style))
-    flush_list()
+            continue
+        if kind == 'title':
+            after_title = True
+        elif kind == 'theme':
+            in_prelude = False
+            after_title = False
+            story.append(CondPageBreak(115))
+        elif kind == 'body' and in_prelude:
+            if after_title and len(value) < 180 and ('｜' in value or '|' in value):
+                kind = 'meta'
+            elif '原文' in value and ('转述' in value or '归纳' in value):
+                kind = 'note'
+            after_title = False
+        cls = DetailParagraph if kind == 'quote' else Paragraph
+        markup = quote_markup(value) if kind == 'quote' else inline_markup(value)
+        # Preserve ordinary multiline numbered/bulleted lists if present in approved Markdown.
+        if kind == 'body' and any(re.match(r'^(?:\d+[.)]|[-*])\s', l) for l in value.splitlines()):
+            markup = '<br/>'.join(inline_markup(l) for l in value.splitlines())
+        font = pdfmetrics.getFont(style[kind].fontName)
+        missing = sorted({c for c in value if not c.isspace() and ord(c) not in font.face.charToGlyph})
+        if missing:
+            raise ValueError(f'Missing glyphs in {kind}: {missing}; select a suitable Chinese font')
+        story.append(cls(markup, style[kind]))
     return story
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("source", type=Path)
-    parser.add_argument("output", type=Path)
-    parser.add_argument("--regular-font")
-    parser.add_argument("--bold-font")
+class BookDocument(BaseDocTemplate):
+    def __init__(self, output, title):
+        super().__init__(str(output), pagesize=A4, leftMargin=20*mm, rightMargin=20*mm,
+                         topMargin=19*mm, bottomMargin=19*mm, title=title,
+                         subject='Four-layer book notes from approved Markdown', pageCompression=1)
+        self.running_title = title
+        self.theme_number = 0
+        frame = Frame(self.leftMargin, self.bottomMargin, self.width, self.height,
+                      leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
+        self.addPageTemplates(PageTemplate(id='reading', frames=[frame], onPage=self.page_chrome))
+
+    def page_chrome(self, canvas, doc):
+        canvas.saveState()
+        canvas.setFillColor(colors.black)
+        canvas.setFont('BookSans', 8)
+        if doc.page > 1:
+            title = self.running_title
+            while title and pdfmetrics.stringWidth(title, 'BookSans', 8) > self.width:
+                title = title[:-1]
+            canvas.drawString(self.leftMargin, A4[1] - 11*mm, title)
+        canvas.drawCentredString(A4[0]/2, 10*mm, str(doc.page))
+        canvas.restoreState()
+
+    def afterFlowable(self, flowable):
+        if isinstance(flowable, Paragraph) and flowable.style.name == 'Theme':
+            self.theme_number += 1
+            key = f'theme-{self.theme_number}'
+            self.canv.bookmarkPage(key)
+            self.canv.addOutlineEntry(flowable.getPlainText(), key, level=0)
+
+
+def render(source, output, regular=None, bold=None, regular_index=0, bold_index=0):
+    source, output = Path(source), Path(output)
+    if source.resolve() == output.resolve():
+        raise ValueError('Source Markdown and output PDF must be different files')
+    text = source.read_text(encoding='utf-8')
+    register_fonts(regular, bold, regular_index, bold_index)
+    title = next((v for k,v in markdown_blocks(text) if k == 'title'), source.stem)
+    story = parse_markdown(text, styles())
+    if not story:
+        raise ValueError('Source Markdown is empty')
+    output.parent.mkdir(parents=True, exist_ok=True)
+    doc = BookDocument(output, title)
+    doc.build(story)
+    return doc.page
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('source', type=Path, help='Complete Markdown explicitly approved by the user')
+    parser.add_argument('output', type=Path)
+    parser.add_argument('--regular-font')
+    parser.add_argument('--bold-font')
+    parser.add_argument('--regular-font-index', type=int, default=0)
+    parser.add_argument('--bold-font-index', type=int, default=0)
     args = parser.parse_args()
-
-    regular = find_font(args.regular_font, REGULAR_CANDIDATES)
-    bold = find_font(args.bold_font, BOLD_CANDIDATES)
-    pdfmetrics.registerFont(TTFont("BookRegular", regular))
-    pdfmetrics.registerFont(TTFont("BookBold", bold))
-    pdfmetrics.registerFontFamily("BookRegular", normal="BookRegular", bold="BookBold")
-    pdfmetrics.registerFontFamily("BookBold", normal="BookBold", bold="BookBold")
-
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    doc = SimpleDocTemplate(str(args.output), pagesize=A4, rightMargin=20 * mm, leftMargin=20 * mm, topMargin=20 * mm, bottomMargin=20 * mm, title=args.source.stem)
-    story = parse_markdown(args.source.read_text(encoding="utf-8"), styles())
-    doc.build(story, onFirstPage=footer, onLaterPages=footer)
+    render(args.source, args.output, args.regular_font, args.bold_font,
+           args.regular_font_index, args.bold_font_index)
     print(args.output.resolve())
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     raise SystemExit(main())

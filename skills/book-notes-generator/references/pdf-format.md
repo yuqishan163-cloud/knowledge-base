@@ -1,159 +1,139 @@
-# PDF Format
+# Markdown → PDF Notes
+
+These rules apply only to Markdown/PDF notes. Keep the existing Notion method and template unchanged.
 
 ## Contents
 
-1. Source Markdown
-2. Numbering
-3. Section order
-4. Execution checklist
+1. Approval and scope
+2. Four layers
+3. Source sentences
+4. Choose Level 4 by book type
+5. Markdown example
+6. Rendering and verification
 
-## Source Markdown
+## 1. Approval and scope
 
-Create one final Markdown file as the PDF source. Use this structure:
+- Read the complete supplied book and track chapter/spine coverage before drafting. Exclude navigation, boilerplate, advertisements, and repetitive material; retain useful reasoning, limits, and examples.
+- Submit a **complete Markdown note**, not only a sample or outline, and wait for the user's explicit approval of that version before any PDF export. A request to generate notes/PDF or approval of the format alone is not approval of the content.
+- Apply feedback in Markdown first. If content changes after approval, resubmit the revised version. Layout-only fixes may be made without a new content approval.
+- The approved Markdown is the PDF's content source. Do not independently rewrite, shorten, append, or add an outline while rendering.
+- Summarize the book itself. Do not create separate `核心概念` / `特别概念`, `个人行动` / `个人应用` / `行动清单`, or `知识连接` sections. Do not import those sections from Notion.
+- Explain necessary concepts in the ordinary body; keep actions that illustrate the book's methods inside the relevant Level 4 blockquote. Removing a standalone action list does **not** remove action examples.
+- Preserve the existing Notion workflow when both outputs are requested. The two outputs share source understanding, not an identical template or all of the same sections.
+
+## 2. Four layers
+
+| Layer | Content | Markdown | PDF |
+|---|---|---|---|
+| 1 | Reconstructed knowledge map, usually 3–7 themes | `## 1. 主题` | Large numbered heading |
+| 2 | A central conclusion under that theme | `**完整结论**`, standalone paragraph | Bold black text, kept with its explanation |
+| 3 | Mechanism, reasoning, necessary definitions and limits | Ordinary paragraphs | Regular black body text |
+| 4, optional | Action example, original-book case, or key detail | `> ...` | Indented text with a left rule; may be slightly smaller |
+
+- Organize around the book's ideas, not a mechanical copy of its table of contents. A few clear conclusions under each theme are better than a fixed quota.
+- Use the four visual formats directly. Do not add `###`/`####`/`#####` headings, yellow highlighting, or `•`/`-`/`✓` prefixes to represent the deeper layers.
+- Reserve standalone bold paragraphs for core conclusions. Keep Level 3 normal-weight; do not turn every explanation into another highlighted insight.
+- The first two layers should make the main ideas reviewable without reading every detail. Each lower layer should add support, not restate its parent.
+- Put essential qualifications in Level 3. Do not hide a limitation in Level 4 if readers need it to understand the conclusion correctly.
+- Do not force all four layers under every conclusion. Omit a Level 4 block when it adds no practical or explanatory value.
+
+## 3. Source sentences
+
+- **Prefer the book's original sentences for Level 2.** Select a concise, self-contained sentence that expresses the conclusion and is supported by the following explanation.
+- Check each excerpt against the full source. A contiguous, complete clause is acceptable if it retains the original meaning; preserve negation, conditions, uncertainty, and speaker attribution.
+- Do not splice distant fragments into an apparently verbatim sentence or polish a quote while still calling it original wording. Mark meaningful omissions; if no suitable excerpt exists, use a minimal faithful paraphrase and distinguish it from a verbatim excerpt.
+- Avoid AI-style balancing formulas such as `不是……而是……`, `既……又……`, `虽然……但是……`, or `不能只看……更要……` when paraphrasing. Use a direct claim. Do not invent a counterpoint merely to make the sentence sound balanced. An original sentence's meaningful contrast need not be rewritten.
+- Introduce the source convention briefly: bold conclusions are original excerpts (with any exceptions identified); explanatory paragraphs and blockquotes are summaries or examples unless expressly quoted.
+- Preserve historical context for forecasts and dated claims. Do not turn the author's prediction, analogy, opinion, or illustrative number into a verified current fact.
+
+## 4. Choose Level 4 by book type
+
+**Favor practical action examples when the book supports them.** Cases and key details are additional choices, not a replacement for actions.
+
+| Book / passage | Preferred Level 4 |
+|---|---|
+| Practical, procedural, method-heavy | Action example: exact steps, checklist, formula with a worked example, diagnostic questions, or an executable demonstration |
+| Conceptual or framework-heavy | A representative original-book case that clarifies the idea; a key distinction, datum, or detail when a case is unnecessary |
+| Case-heavy or reflective | A compact original-book case with relevant context and outcome; an action example if the author provides an applicable method |
+| Mixed | Choose per conclusion. Prefer actions when they materially improve usability; otherwise use cases/details |
+
+- An action example belongs under its conclusion, not in a separate personal action plan. It should show how the book's method works, with enough detail to execute or understand the procedure.
+- Prefer original steps and worked examples. If demonstrating an original method in a new hypothetical scenario, label it `基于原书方法的演示` and mark invented inputs as hypothetical. Do not present it as an original-book case or add unsupported prescriptions, formulas, safety claims, or success guarantees.
+- A conceptual book must not be turned into a self-help checklist. When no sound actionable method exists, use a case or key detail instead.
+- Cases should preserve context → relevant decision/mechanism → result. Keep only details needed to explain the parent conclusion; do not dump the story.
+- Optional labels inside the quote (`行动示例：`, `原书案例：`, `关键细节：`) may clarify its role. They are not a new heading level.
+- For multi-step actions, prefix every line and blank line with `>` so the entire example remains one Level 4 block. Use simple numbered or bulleted lines; do not leave later steps outside the blockquote.
+
+## 5. Markdown example
+
+The following is a structural template, not a quotation from a real book:
 
 ```markdown
-# 书名
+# 《书名》
 
-## 大纲
+作者与已有出版信息
 
-1. 第一主题
-2. 第二主题
-3. 第三主题
+说明：加粗结论优先摘自原文；普通正文和引用块为归纳转述或明确标注的演示。
 
-## 三句话总结
-
-- 第一句
-- 第二句
-- 第三句
+用三句话交代全书主旨、主要论证方向和最终落点。
 
 ## 1. 第一主题
 
-### • 核心洞察
+**从原书选取的完整核心结论。**
 
-#### - 解释标题
+普通正文解释结论的含义、机制和适用条件。
 
-普通说明文字。**最高价值的信息加粗。**
+> 行动示例：简要说明情境与目标。
+>
+> 1. 原书方法的第一步。
+> 2. 原书方法的第二步。
+> 3. 原书规定的检查方式。
 
-##### ✓ 行动示例
+**另一条从原书选取的核心结论。**
 
-具体步骤、公式、清单或例子。
+普通正文说明作者的论证。
 
-## 行动清单
+> 原书案例：保留必要情境、关键过程和结果，说明它支持哪个观点。
 
-- [ ] 具体行动
+## 2. 第二主题
 
-## 特别概念
+**从原书选取的核心结论。**
 
-### 概念名称
+普通正文解释。
 
-简短解释。
-
-## 知识连接
-
-- 只写真正有用的连接。
+> 关键细节：补充理解这一结论所需的原书信息。
 ```
 
-Do not reproduce Notion toggles or enhanced Markdown tags in PDF source.
+Default order: book title and known metadata → brief provenance note where needed → three-sentence overview → four-layer body. Do not append standalone concept/action/link sections. A separate outline is optional only when requested or already approved in Markdown; PDF bookmarks do not add body content.
 
-## Hierarchy markers
+## 6. Rendering and verification
 
-- Number only Level 1 themes: `1.`, `2.`, `3.`. Always include the period.
-- Make Level 1 larger than the deeper layers.
-- Mark Level 2 insights with `•` and render the complete line with a light-yellow highlight.
-- Mark Level 3 explanations with `-`.
-- Mark optional Level 4 action examples with `✓`.
-- Use the same font size for Levels 2, 3, and 4. Use the previous Level 1 size of 18 pt by default.
-- Render ordinary supporting paragraphs under a Level 3 heading at the same 18 pt size as that heading.
-- Render all text in black, including headings, body text, quotes, and page numbers.
-- Keep each marker stable throughout the document; do not mix numbered and symbolic styles below Level 1.
-- Keep the outline wording identical to Level 1 body headings.
-- Do not add labels such as `主题：` or `观点：`.
+### Paths and dependencies
 
-## Section order
+- Use the active workspace's prescribed deliverables directory for both the Markdown approval draft and final PDF. If none is prescribed, use `output/pdf/`. Keep scratch scripts and page renders in `work/` or the workspace's designated temporary directory, not in the installed Skill.
+- Resolve the Skill directory and a Python 3.10+ executable. Prefer the bundled workspace dependencies and check `import reportlab`. If unavailable, use an isolated environment with ReportLab rather than changing system Python.
+- Keep the original-language title in the document. An ASCII PDF filename is a safe default.
 
-1. Title and available book metadata.
-2. Outline as the first content section.
-3. Three-sentence summary.
-4. Numbered progressive body.
-5. Action list.
-6. Special concepts, when useful.
-7. Knowledge connections, when genuine.
-
-The outline must appear before the summary and detailed body.
-
-## Execution checklist
-
-Complete every step. A successful render alone is not completion.
-
-### 1. Prepare paths and dependencies
-
-- Resolve the active workspace, the absolute Skill directory, and a Python 3.10+ executable. When available, load the workspace's bundled dependency paths and use its Python, `pdfinfo`, and `pdftoppm` executables.
-- Confirm ReportLab before rendering:
-
-```bash
-"<python>" -c "import reportlab"
-```
-
-- If the import fails, use the bundled Python. If no bundled runtime is available, install `reportlab>=4.0,<5` in an isolated environment and test the import again.
-- Create these workspace paths:
-  - Source: `<workspace>/tmp/pdfs/<ascii-name>.md`
-  - Final PDF: `<workspace>/output/pdf/<ascii-name>.pdf`
-  - Page previews: `<workspace>/tmp/pdfs/<ascii-name>-page`
-- Keep the original-language book title inside the document. Use an ASCII-compatible filename such as `financial-freedom-book-notes.pdf`.
-
-### 2. Render the final PDF
-
-Run the bundled renderer with absolute paths:
+### Render only after approval
 
 ```bash
 "<python>" "<skill-dir>/scripts/render_notes_pdf.py" \
-  "<workspace>/tmp/pdfs/<ascii-name>.md" \
-  "<workspace>/output/pdf/<ascii-name>.pdf"
+  "<approved-source.md>" "<final-output.pdf>"
 ```
 
-The renderer searches common macOS and Linux Chinese fonts. When the user chooses a font, or the defaults lack Chinese glyphs, add both `--regular-font <absolute-path>` and `--bold-font <absolute-path>`. Avoid emoji unless the selected font supports them.
+The renderer accepts paths; it cannot know whether the user approved the source. Verify approval in the conversation before running it. Preserve the exact source file used.
 
-Require exit status 0 and a non-empty final file:
+- The default reading layout uses a 17.5 pt theme heading, 12 pt bold conclusions, 11.5 pt regular body, and 10.5 pt indented details with a left rule. Body leading is 19 pt; keep all text black. These sizes are defaults from the accepted test, not a forced page count.
+- On macOS, use Songti SC Regular for body and Heiti SC Medium for headings/conclusions when available. Embed Chinese fonts. The script has fallback fonts for other environments; unsupported or missing glyphs must be fixed, not silently dropped.
+- Use `--regular-font` and `--bold-font` for explicit font files. TTC collections may also require `--regular-font-index` / `--bold-font-index` to choose the correct face.
+- Keep headings and conclusions with following explanation, allow ordinary paragraphs to flow, and preserve every line of multi-step quote blocks. Do not force each theme onto a new page.
 
-```bash
-test -s "<workspace>/output/pdf/<ascii-name>.pdf"
-```
+### Verify and deliver
 
-Never keep the only deliverable in a temporary directory or the Skill installation directory.
+1. Require exit status 0 and a non-empty final PDF. Open it with `pdfinfo` and record page count, page size, and encryption status.
+2. Extract PDF text with `pdfplumber` or `pdftotext`. Compare it with the approved Markdown, ignoring only formatting syntax, line wrapping, and added page headers/footers. Check that no steps, formulas, punctuation, or source excerpts were lost or changed.
+3. Render **every page** with `pdftoppm` and visually inspect all pages. Check Chinese glyphs, bold weight, four-layer distinction, quote rules, clipping, overlaps, isolated headings, sparse pages, and pagination.
+4. Fix rendering defects without changing approved content, rerender, and repeat the text/visual checks. If content must change, return to Markdown approval.
+5. Link the exact verified PDF with a standard absolute Markdown file link in Codex desktop. Preserve the approved Markdown; do not deliver a temporary PDF, raw path, or hidden citation directive in place of the link.
 
-### 3. Verify structure and appearance
-
-Inspect metadata and render every page:
-
-```bash
-"<pdfinfo>" "<workspace>/output/pdf/<ascii-name>.pdf"
-"<pdftoppm>" -png -r 150 \
-  "<workspace>/output/pdf/<ascii-name>.pdf" \
-  "<workspace>/tmp/pdfs/<ascii-name>-page"
-```
-
-- Confirm the PDF opens, is not encrypted, and has the expected page count and page size.
-- Visually inspect every generated PNG. For long documents, inspect at minimum every page once at normal detail, then inspect pages with dense lists, formulas, or section transitions more closely.
-- Correct broken glyphs, orphan headings, clipped or overlapping text, inconsistent numbering, weak bold emphasis, and excess blank space. Render and verify again after every correction.
-- Default to a comfortable reading size: 11.5 pt body text with approximately 20 pt leading; scale headings proportionally.
-
-### 4. Deliver the verified file
-
-- Deliver only the final PDF unless the user requests the Markdown or page previews.
-- In Codex desktop, insert one standard Markdown file link using the absolute local path:
-
-```markdown
-[打开 PDF](/absolute/path/book-notes.pdf)
-```
-
-- Use the Markdown link as the primary delivery method. Do not use `:codex-file-citation{...}` in Codex desktop because it may be hidden without producing a persistent attachment.
-- Do not wrap the live link in backticks or a code block. Do not show only a plain path.
-- The link target must be the verified final PDF under the workspace's `output/pdf/`, not a temporary file.
-
-### Failure handling
-
-- ReportLab import failure: switch to the bundled Python or install ReportLab in an isolated environment, then retry.
-- Missing Chinese glyphs: supply verified regular and bold Chinese font files and rerender.
-- Missing `pdfinfo` or `pdftoppm`: resolve the bundled Poppler executables; do not skip PDF verification.
-- Output exists only under `tmp/`: render or copy the verified final PDF into `output/pdf/` before delivery.
-- Link fails to open: confirm the target still exists, then resend the same existing PDF with the absolute-path Markdown link above. Regenerating the PDF is unnecessary when file validation passed.
+If a dependency or suitable Chinese font is missing, report that limitation or resolve it in the permitted environment. Do not skip verification or claim completion from the Markdown alone.
