@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yuqi Class Notes"
+  short_description: "Turn complete classes into independent verified articles"
+  default_prompt: "Use $yuqi-class-notes to turn this complete class into a stand-alone article with no source-medium wording and optional blue technology illustrations."

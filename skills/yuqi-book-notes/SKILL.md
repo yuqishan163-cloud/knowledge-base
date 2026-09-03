@@ -1,9 +1,9 @@
 ---
-name: book-notes-generator
+name: yuqi-book-notes
 description: Read complete books from EPUB, PDF, TXT, Markdown, or other supplied files and extract high-value ideas with Progressive Summarization into reusable Notion pages or Markdown reading notes that require user approval before PDF export. Use when the user asks Codex to read a whole book, distill layered notes, add practical actions or distinctive concepts, connect it to their knowledge base, preview or create a Notion book-note page, or generate Markdown/PDF book summaries.
 ---
 
-# Book Notes Generator
+# Yuqi Book Notes
 
 Turn a complete book into a compact knowledge asset that supports fast review, application, and future creation. Optimize for the user's future projects and decisions.
 

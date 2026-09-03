@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yuqi Book Notes"
+  short_description: "通读整本书，生成渐进式 Notion 或 PDF 笔记"
+  default_prompt: "Use $yuqi-book-notes to read this book and create reusable progressive-summary notes in Notion or PDF."

@@ -8,9 +8,10 @@
 
 | Skill | 功能 | 状态 |
 |---|---|---|
-| [Book Notes Generator](skills/book-notes-generator/) | 通读完整书籍，生成渐进式 Notion 或 PDF 读书笔记 | v0.1 Beta |
+| [Yuqi Book Notes](skills/yuqi-book-notes/) | 通读完整书籍，生成渐进式 Notion 或 PDF 读书笔记 | v0.1 Beta |
+| [Yuqi Class Notes](skills/yuqi-class-notes/) | 将完整课程整理为独立文章与经过验证的 PDF 笔记 | v0.1 Beta |
 
-## 安装 Book Notes Generator
+## 安装 Skills
 
 克隆仓库：
 
@@ -21,7 +22,8 @@ git clone https://github.com/yuqishan163-cloud/knowledge-base.git
 复制 Skill 到 Codex：
 
 ```bash
-cp -R knowledge-base/skills/book-notes-generator ~/.codex/skills/
+cp -R knowledge-base/skills/yuqi-book-notes ~/.codex/skills/
+cp -R knowledge-base/skills/yuqi-class-notes ~/.codex/skills/
 ```
 
 重新打开 Codex 后即可使用。
@@ -29,12 +31,12 @@ cp -R knowledge-base/skills/book-notes-generator ~/.codex/skills/
 PDF 输出需要 Python 3.10+ 和 ReportLab：
 
 ```bash
-python3 -m pip install -r knowledge-base/skills/book-notes-generator/requirements.txt
+python3 -m pip install -r knowledge-base/skills/yuqi-book-notes/requirements.txt
 ```
 
 Notion 输出需要安装并连接 Notion 插件，并授予目标书单库的访问权限。
 
-## Book Notes Generator
+## Yuqi Book Notes
 
 这个 Skill 支持 EPUB、PDF、TXT 和 Markdown，可以：
 
@@ -50,11 +52,11 @@ Notion 输出需要安装并连接 Notion 插件，并授予目标书单库的�
 ### 使用示例
 
 ```text
-使用 $book-notes-generator 通读这本 EPUB，生成渐进式 Notion 读书笔记。
+使用 $yuqi-book-notes 通读这本 EPUB，生成渐进式 Notion 读书笔记。
 ```
 
 ```text
-使用 $book-notes-generator 阅读这本书，先给我完整 Markdown 笔记审批，确认后再生成 PDF。
+使用 $yuqi-book-notes 阅读这本书，先给我完整 Markdown 笔记审批，确认后再生成 PDF。
 ```
 
 ```text
@@ -81,7 +83,7 @@ PDF 使用四种格式，第四层按书的类型选择，整体优先有用的�
 
 完整 Markdown 审批是 PDF 流程的必要步骤，格式预览不能代替内容审批。确认后只调整排版；内容如有实质性变更，需重新审批。Notion 的模板、折叠、行动、特别概念和知识连接流程保持不变。
 
-演示文件见 [examples/book-notes-generator/demo-note.md](examples/book-notes-generator/demo-note.md)。
+演示文件见 [examples/yuqi-book-notes/demo-note.md](examples/yuqi-book-notes/demo-note.md)。
 
 ### 中文字体
 
@@ -102,7 +104,7 @@ PDF 默认使用 macOS 的宋体正文与黑体标题，也会尝试可用的中
 
 ## English
 
-AI Skills is a growing collection of Codex Skills for AI, content creation, personal knowledge management, and productivity. Book Notes Generator reads complete books and turns them into reusable progressive-summary notes for Notion or PDF.
+AI Skills is a growing collection of Codex Skills for AI, content creation, personal knowledge management, and productivity. Yuqi Book Notes reads complete books and turns them into reusable progressive-summary notes for Notion or PDF. Yuqi Class Notes turns complete classes into independent articles and verified PDF notes.
 
 ## License
 
